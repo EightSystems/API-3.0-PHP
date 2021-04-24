@@ -72,6 +72,8 @@ abstract class AbstractRequest
         }
 
         if ($content !== null) {
+            $content = $this->cleanContentData($content);
+            var_dump($content);
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($content));
 
             $headers[] = 'Content-Type: application/json';
@@ -112,6 +114,30 @@ abstract class AbstractRequest
         curl_close($curl);
 
         return $this->readResponse($statusCode, $response);
+    }
+
+    protected function cleanContentData($contentData) {
+        $contentData = json_decode(json_encode($contentData), true);
+
+        foreach(array_keys($contentData) as $contentKey) {
+            $contentValue = $contentData[$contentKey];
+
+            if ( is_array($contentValue) ) {
+                $cValue = $this->cleanContentData($contentValue);
+            }
+            else {
+                $cValue = $contentValue;
+            }
+
+            if ( is_null($cValue) ) {
+                unset($contentData[$contentKey]);
+            }
+            else {
+                $contentData[$contentKey] = $cValue;
+            }
+        }
+
+        return $contentData;
     }
 
     /**
@@ -158,3 +184,4 @@ abstract class AbstractRequest
      */
     protected abstract function unserialize($json);
 }
+

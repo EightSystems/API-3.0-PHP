@@ -73,7 +73,6 @@ abstract class AbstractRequest
 
         if ($content !== null) {
             $content = $this->cleanContentData($content);
-            var_dump($content);
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($content));
 
             $headers[] = 'Content-Type: application/json';
